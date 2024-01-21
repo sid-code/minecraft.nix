@@ -77,6 +77,8 @@ def authenticate(profile_path):
                 with open(profile_path, 'w+') as f:
                     json.dump(profile, f, default=custom_encode)
             return profile
+    else:
+        print("Config doesn't exist, log in now.")
 
     profile = login_and_get_profile()
     profile_path.parent.mkdir(parents=True, exist_ok=True)
@@ -85,7 +87,7 @@ def authenticate(profile_path):
         return profile
 
 
-try:
+if __name__ == "__main__":
     profile_path_name = expanduser('~/.local/share/minecraft.nix/profile.json')
     for i in range(len(argv)):
         if argv[i] == '--profile' and i + 1 < len(argv):
@@ -94,6 +96,3 @@ try:
     authenticate(Path(profile_path_name))
     info("Successfully authenticated.")
     exit(0)
-except Exception as e:
-    error(f"Authentication Failed: {type(e).__name__}: {e}.")
-    exit(1)
