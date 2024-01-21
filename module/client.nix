@@ -1,17 +1,28 @@
-{ config, lib, pkgs, ... }:
-let
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}: let
   inherit (lib) mkIf versionAtLeast;
   inherit (lib.types) mkOptionType listOf path package singleLineStr bool str;
   inherit (lib.options) mergeEqualOption mkOption;
-  inherit (lib.strings)
-    isStringLike hasSuffix makeLibraryPath concatStringsSep concatMapStringsSep
-    optionalString;
+  inherit
+    (lib.strings)
+    isStringLike
+    hasSuffix
+    makeLibraryPath
+    concatStringsSep
+    concatMapStringsSep
+    optionalString
+    ;
   inherit (pkgs) writeShellScriptBin jq linkFarmFromDrvs xorg;
   inherit (pkgs.writers) writePython3;
   jarPath = mkOptionType {
     name = "jarFilePath";
     check = x:
-      isStringLike x && builtins.substring 0 1 (toString x) == "/"
+      isStringLike x
+      && builtins.substring 0 1 (toString x) == "/"
       && hasSuffix ".jar" (toString x);
     merge = mergeEqualOption;
   };
@@ -34,18 +45,17 @@ in {
     mods = mkOption {
       type = listOf jarPath;
       description = "List of mods load by the game.";
-      default = [ ];
+      default = [];
     };
     resourcePacks = mkOption {
       type = listOf path;
       description = "List of resourcePacks available to the game.";
-      default = [ ];
+      default = [];
     };
     shaderPacks = mkOption {
       type = listOf path;
-      description =
-        "List of shaderPacks available to the game. The mod for loading shader packs should be add to option ``mods'' explicitly.";
-      default = [ ];
+      description = "List of shaderPacks available to the game. The mod for loading shader packs should be add to option ``mods'' explicitly.";
+      default = [];
     };
     authClientID = mkOption {
       type = singleLineStr;
@@ -110,7 +120,7 @@ in {
     launchScript = {
       preparation = {
         parseRunnerArgs = {
-          deps = [ "parseArgs" ];
+          deps = ["parseArgs"];
           text = ''
             XDG_DATA_HOME="''${XDG_DATA_HOME:-$HOME/.local/share}"
             PROFILE="$XDG_DATA_HOME/minecraft.nix/profile.json"
@@ -157,21 +167,22 @@ in {
       };
       # Minecraft versions before 1.13 use LWJGL2 for graphics, which determines
       # the existing graphics modes by parsing the output of the "xrandr" command.
-      path = mkIf (!(versionAtLeast config.version "1.13")) [ xorg.xrandr ];
-      gameExecution = let libPath = makeLibraryPath config.libraries.preload;
+      path = mkIf (!(versionAtLeast config.version "1.13")) [xorg.xrandr];
+      gameExecution = let
+        libPath = makeLibraryPath config.libraries.preload;
       in ''
         export LD_LIBRARY_PATH="${libPath}''${LD_LIBRARY_PATH:+':'}''${LD_LIBRARY_PATH:-}"
         exec "${config.java}" \
           ${builtins.concatStringsSep " " config.jvmArgs} \
           -Djava.library.path='${
-            concatMapStringsSep ":" (native: "${native}/lib")
-            config.libraries.native
-          }' \
+          concatMapStringsSep ":" (native: "${native}/lib")
+          config.libraries.native
+        }' \
           -cp '${concatStringsSep ":" config.libraries.java}' \
           ${
-            optionalString (config.mods != [ ])
-            "-Dfabric.addMods='${concatStringsSep ":" config.mods}'"
-          } \
+          optionalString (config.mods != [])
+          "-Dfabric.addMods='${concatStringsSep ":" config.mods}'"
+        } \
           ${config.mainClass} \
           --version "${config.version}" \
           --assetIndex "${config.assets.index}" \
