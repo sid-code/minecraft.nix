@@ -76,6 +76,8 @@ def parse_timestamp(value) -> datetime:
     return datetime.fromisoformat(timestamp.group(0))
 
 
+# Some of this code comes from
+# https://gist.github.com/tuxuser/8b7cc153cdecd0a9c3f2694850fa90bd
 def get_login_url(redirect_port):
     url = "https://login.live.com/oauth20_authorize.srf"
     query_params = {
