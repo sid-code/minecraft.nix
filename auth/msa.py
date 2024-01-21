@@ -220,8 +220,9 @@ def get_xsts_token(xbl_token: Token, user_hash: str) -> Token:
 
 def get_mc_token(xsts_token: Token, user_hash: str) -> Token:
     response = post(MC_LOGIN_URL, json={
-        "xtoken": f"XBL3.0 x={user_hash};{xsts_token}",
-        "platform": "PC_LAUNCHER"
+        "identityToken": f"XBL3.0 x={user_hash};{xsts_token}",
+        "platform": "PC_LAUNCHER",
+        "ensureLegacyEnabled": True
     }).json()
 
     return Token(response['access_token'], datetime.now(UTC) + timedelta(seconds=int(response['expires_in'])))
