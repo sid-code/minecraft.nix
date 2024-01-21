@@ -22,7 +22,7 @@ XBL_RELYING_PARTY = "http://auth.xboxlive.com"
 XSTS_AUTH_URL = "https://xsts.auth.xboxlive.com/xsts/authorize"
 XSTS_RELYING_PARTY = "rp://api.minecraftservices.com/"
 
-MC_LOGIN_URL = "https://api.minecraftservices.com/launcher/login"
+MC_LOGIN_URL = "https://api.minecraftservices.com/authentication/login_with_xbox"
 ENTITLEMENTS_URL = "https://api.minecraftservices.com/entitlements/license"
 PROFILE_URL = "https://api.minecraftservices.com/minecraft/profile"
 MOJANG_PUBLIC_KEY = """
