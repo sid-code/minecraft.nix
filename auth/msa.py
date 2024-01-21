@@ -166,7 +166,7 @@ def get_xbl_token_and_userhash(ms_token: Token) -> (Token, str):
         },
         "RelyingParty": XBL_RELYING_PARTY,
         "TokenType": "JWT"
-    }).json()
+    }, headers={"x-xbl-contract-version": "1"}).json()
 
     for claim in response["DisplayClaims"]["xui"]:
         if "uhs" in claim:
