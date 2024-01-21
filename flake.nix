@@ -27,7 +27,7 @@
         legacyPackages = lib.makeOverridable (import ./all-packages.nix) {
           inherit pkgs lib metadata OS;
           # Users may override this with their own application id
-          authClientID = "adf6c624-b9ba-472e-9469-e54cc8f98e87";
+          authClientID = "7e6f5a7f-17fb-420e-81f2-96ee1a11615b";
         };
         apps.update = mkApp {
           drv = let
