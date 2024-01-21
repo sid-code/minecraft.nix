@@ -1,4 +1,4 @@
-from requests import get, post
+from requests import get, post, Request
 from requests.exceptions import Timeout
 from time import sleep, time
 from datetime import datetime, timedelta, UTC
@@ -8,6 +8,7 @@ import re
 import jwt
 
 CLIENT_ID = "@CLIENT_ID@"
+REDIRECT_URI = "http://localhost"
 # Microsoft login
 DEVICE_CODE_URL = "https://login.microsoftonline.com/consumers/oauth2/v2.0/devicecode"
 MS_TOKEN_URL = "https://login.microsoftonline.com/consumers/oauth2/v2.0/token"
@@ -73,6 +74,44 @@ def parse_timestamp(value) -> datetime:
     if not timestamp:
         raise AuthFailed("Unrecogonized timestamp")
     return datetime.fromisoformat(timestamp.group(0))
+
+
+def get_login_url(redirect_port):
+    url = "https://login.live.com/oauth20_authorize.srf"
+    query_params = {
+        "client_id": CLIENT_ID,
+        "response_type": "code",
+        "approval_prompt": "auto",
+        "scope": "Xboxlive.signin Xboxlive.offline_access",
+        "redirect_uri": f"{REDIRECT_URI}:{redirect_port}",
+    }
+
+    return Request("GET", url, params=query_params).prepare().url
+
+
+def get_ms_access_and_refresh_tokens(authorization_code, redirect_port) -> (str, str):
+    """
+    Authenticate account via authorization code and receive access/refresh token
+    """
+
+    base_url = "https://login.live.com/oauth20_token.srf"
+    params = {
+        "grant_type": "authorization_code",
+        "client_id": CLIENT_ID,
+        "scope": "Xboxlive.signin Xboxlive.offline_access",
+        "code": authorization_code,
+        "redirect_uri": f"{REDIRECT_URI}:{redirect_port}",
+    }
+
+    resp = post(base_url, data=params)
+    if resp.status_code != 200:
+        raise AuthFailed("Failed to authenticate with MS Live\n"
+                         f"Status code: {resp.status_code}\n"
+                         f"Message: {resp.text}")
+
+    access_token = resp.json()["access_token"]
+    refresh_token = resp.json()["refresh_token"]
+    return access_token, refresh_token
 
 
 def get_ms_token() -> (Token, Token):

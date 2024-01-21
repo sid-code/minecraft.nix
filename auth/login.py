@@ -4,6 +4,7 @@ from os.path import expanduser
 from sys import argv
 from pathlib import Path
 from colorama import Fore, Style
+import webbrowser
 
 
 def get_mc_token_from_ms_token(ms_token):
@@ -16,8 +17,20 @@ def get_mc_token_from_ms_token(ms_token):
 
 
 def login_and_get_profile():
+    port = 9032
     info("Logging in with Microsoft account.")
-    (ms_token, refresh_token) = get_ms_token()
+    url = get_login_url(redirect_port=port)
+    try:
+        webbrowser.open(url)
+    except webbrowser.Error as e:
+        print(e)
+        print("Failed to open browser, you're on your own.")
+
+    print("Log in here: " + url)
+    print("Waiting for code...")
+    code = run_server_get_auth_code(redirect_port=port)
+    print("Received code!")
+    (ms_token, refresh_token) = get_ms_access_and_refresh_tokens(code, redirect_port=port)
     mc_token = get_mc_token_from_ms_token(ms_token)
 
     info("Determining game ownership.")
