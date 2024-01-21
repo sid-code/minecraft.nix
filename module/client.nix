@@ -196,7 +196,6 @@ in
             --uuid "$UUID" \
             --username "$USER_NAME" \
             --accessToken "$ACCESS_TOKEN" \
-            --userType "msa" \
             "''${mcargs[@]}"
         '';
     };
