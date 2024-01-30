@@ -91,7 +91,7 @@ def get_login_url(redirect_port):
     return Request("GET", url, params=query_params).prepare().url
 
 
-def get_ms_access_and_refresh_tokens(authorization_code, redirect_port) -> (str, str):
+def get_ms_access_and_refresh_tokens(authorization_code, redirect_port) -> (Token, Token):
     """
     Authenticate account via authorization code and receive access/refresh token
     """
@@ -111,9 +111,12 @@ def get_ms_access_and_refresh_tokens(authorization_code, redirect_port) -> (str,
                          f"Status code: {resp.status_code}\n"
                          f"Message: {resp.text}")
 
-    access_token = resp.json()["access_token"]
-    refresh_token = resp.json()["refresh_token"]
-    return access_token, refresh_token
+    parsed = resp.json()
+    expires_in = int(parsed['expires_in'])
+    access_token = parsed["access_token"]
+    refresh_token = parsed["refresh_token"]
+    expire_timestamp = datetime.utcnow() + timedelta(seconds=expires_in)
+    return Token(access_token, expire_timestamp), Token(refresh_token, datetime.min)
 
 
 def get_ms_token() -> (Token, Token):
