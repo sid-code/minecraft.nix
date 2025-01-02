@@ -245,3 +245,4 @@ def check_ownership(mc_token: Token):
 
 def get_profile(mc_token: Token) -> Dict[str, str]:
     return get(PROFILE_URL, headers={'Authorization': f"Bearer {mc_token}"}).json()
+
