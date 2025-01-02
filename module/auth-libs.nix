@@ -1,5 +1,6 @@
-{python3Packages}:
-with python3Packages; [
+{ python3Packages }:
+with python3Packages;
+[
   requests
   pyjwt
   colorama
