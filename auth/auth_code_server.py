@@ -1,4 +1,5 @@
 from http.server import HTTPServer, BaseHTTPRequestHandler
+from urllib.parse import urlparse, parse_qs
 import threading
 
 
@@ -13,7 +14,8 @@ class AuthCodeHandler(BaseHTTPRequestHandler):
         self.send_header("Content-type", "text/plain")
         self.end_headers()
         try:
-            AuthCodeHandler.code = self.path.split("=")[1]
+            query_components = parse_qs(urlparse(self.path).query)
+            AuthCodeHandler.code = query_components["code"][0]
             print("CODE: " + AuthCodeHandler.code)
         except IndexError:
             AuthCodeHandler.code = None
