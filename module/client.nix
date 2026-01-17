@@ -77,14 +77,13 @@ in
     jvmArgs = mkOption {
       type = types.listOf types.str;
       description = "List of extra arguments to pass (as prefix) to Java launcher";
-      default = [];
+      default = [ ];
     };
     appArgs = mkOption {
       type = types.listOf types.str;
       description = "List of extra arguments to pass (as postfix) to Java launcher";
-      default = [];
+      default = [ ];
     };
-
 
     # Internal
     libraries.java = mkOption {
@@ -190,11 +189,16 @@ in
         ''
           export LD_LIBRARY_PATH="${libPath}''${LD_LIBRARY_PATH:+':'}''${LD_LIBRARY_PATH:-}"
           exec "${config.java}" \
+            ${optionalString pkgs.stdenv.isDarwin "-XstartOnFirstThread"} \
             -Djava.library.path='${
               concatMapStringsSep ":" (native: "${native}/lib") config.libraries.native
             }' \
             -cp '${builtins.concatStringsSep ":" config.libraries.java}' \
-            ${optionalString (config.mods != [ ]) "-Dfabric.addMods='${builtins.concatStringsSep ":" config.mods}'"} \
+            ${
+              optionalString (
+                config.mods != [ ]
+              ) "-Dfabric.addMods='${builtins.concatStringsSep ":" config.mods}'"
+            } \
             ${config.mainClass} \
             --version "${config.version}" \
             --assetIndex "${config.assets.index}" \
