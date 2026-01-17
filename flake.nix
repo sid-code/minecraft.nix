@@ -11,6 +11,7 @@
 
   outputs =
     {
+      self,
       nixpkgs,
       flake-utils,
       metadata,
