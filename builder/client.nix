@@ -13,6 +13,7 @@ let
     alsa-lib
     unzip
     runCommand
+    fetchurl
     ;
   inherit (pkgs.xorg) libXcursor libXrandr libXxf86vm;
 
