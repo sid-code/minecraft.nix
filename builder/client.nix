@@ -24,8 +24,8 @@ let
     libXxf86vm # Needed only for versions <1.13
     libglvnd # To fix issue on macos where pkgs.libGL is null
     flite
-    alsa-lib
-  ];
+  ]
+  ++ optional (OS == "linux") alsa-lib;
 
   buildVanillaLibraries =
     artifacts:
