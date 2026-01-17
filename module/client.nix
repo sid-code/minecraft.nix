@@ -5,21 +5,12 @@
   ...
 }:
 let
-  inherit (lib) mkIf versionAtLeast;
-  inherit (lib.types)
-    mkOptionType
-    listOf
-    path
-    package
-    singleLineStr
-    bool
-    ;
+  inherit (lib) mkIf versionAtLeast types;
   inherit (lib.options) mergeEqualOption mkOption;
   inherit (lib.strings)
     isStringLike
     hasSuffix
     makeLibraryPath
-    concatStringsSep
     concatMapStringsSep
     optionalString
     ;
@@ -30,7 +21,7 @@ let
     xorg
     ;
   inherit (pkgs.writers) writePython3;
-  jarPath = mkOptionType {
+  jarPath = types.mkOptionType {
     name = "jarFilePath";
     check =
       x: isStringLike x && builtins.substring 0 1 (toString x) == "/" && hasSuffix ".jar" (toString x);
@@ -55,41 +46,41 @@ in
   options = {
     # Interface
     mods = mkOption {
-      type = listOf jarPath;
+      type = types.listOf jarPath;
       description = "List of mods load by the game.";
       default = [ ];
     };
     resourcePacks = mkOption {
-      type = listOf path;
+      type = types.listOf types.path;
       description = "List of resourcePacks available to the game.";
       default = [ ];
     };
     shaderPacks = mkOption {
-      type = listOf path;
+      type = types.listOf types.path;
       description = "List of shaderPacks available to the game. The mod for loading shader packs should be add to option ``mods'' explicitly.";
       default = [ ];
     };
     authClientID = mkOption {
-      type = singleLineStr;
+      type = types.singleLineStr;
       description = "The client id of the authentication application.";
     };
     launcher = mkOption {
-      type = package;
+      type = types.package;
       description = "The launcher of the game.";
       readOnly = true;
     };
     declarative = mkOption {
-      type = bool;
+      type = types.bool;
       description = "Whether using a declarative way to manage game files.";
       default = true;
     };
     jvmArgs = mkOption {
-      type = listOf str;
+      type = types.listOf types.str;
       description = "List of extra arguments to pass (as prefix) to Java launcher";
       default = [];
     };
     appArgs = mkOption {
-      type = listOf str;
+      type = types.listOf types.str;
       description = "List of extra arguments to pass (as postfix) to Java launcher";
       default = [];
     };
@@ -97,21 +88,21 @@ in
 
     # Internal
     libraries.java = mkOption {
-      type = listOf jarPath;
+      type = types.listOf jarPath;
       visible = false;
     };
     libraries.native = mkOption {
-      type = listOf path;
+      type = types.listOf types.path;
       visible = false;
     };
     libraries.preload = mkOption {
-      type = listOf package;
+      type = types.listOf types.package;
       visible = false;
     };
-    assets.directory = mkInternalOption path;
-    assets.index = mkInternalOption singleLineStr;
+    assets.directory = mkInternalOption types.path;
+    assets.index = mkInternalOption types.singleLineStr;
 
-    mainClass = mkInternalOption singleLineStr;
+    mainClass = mkInternalOption types.singleLineStr;
   };
 
   config = {
@@ -202,8 +193,8 @@ in
             -Djava.library.path='${
               concatMapStringsSep ":" (native: "${native}/lib") config.libraries.native
             }' \
-            -cp '${concatStringsSep ":" config.libraries.java}' \
-            ${optionalString (config.mods != [ ]) "-Dfabric.addMods='${concatStringsSep ":" config.mods}'"} \
+            -cp '${builtins.concatStringsSep ":" config.libraries.java}' \
+            ${optionalString (config.mods != [ ]) "-Dfabric.addMods='${builtins.concatStringsSep ":" config.mods}'"} \
             ${config.mainClass} \
             --version "${config.version}" \
             --assetIndex "${config.assets.index}" \
