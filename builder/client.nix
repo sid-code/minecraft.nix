@@ -8,7 +8,7 @@ with lib;
 let
   inherit (pkgs)
     libpulseaudio
-    libglvnd
+    libGLX
     flite
     alsa-lib
     unzip
