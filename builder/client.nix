@@ -22,7 +22,7 @@ let
     libXcursor
     libXrandr
     libXxf86vm # Needed only for versions <1.13
-    libglvnd # To fix issue on macos where pkgs.libGL is null
+    libGLX # To fix issue on macos where pkgs.libGL is null
     flite
   ]
   ++ optional (OS == "linux") alsa-lib;
