@@ -133,23 +133,19 @@ in {
           '';
         };
         auth = let
-          ensureAuth = writePython3 "ensureAuth" {
-            libraries = with pkgs.python3Packages; [
-              requests
-              pyjwt
-              colorama
-              cryptography
-            ];
-            flakeIgnore = [ "E501" "E402" "W391" ];
-          } ''
-            ${builtins.replaceStrings [ "@CLIENT_ID@" ] [ config.authClientID ]
-            (builtins.readFile ../auth/msa.py)}
-
-            ${builtins.readFile ../auth/login.py}
-          '';
+          ensureAuth =
+            writePython3 "ensureAuth" {
+              libraries = pkgs.callPackage ./auth-libs.nix {};
+              flakeIgnore = ["E501" "E402" "W391"];
+            } (builtins.replaceStrings ["@CLIENT_ID@"] [config.authClientID] ''
+              ${builtins.readFile ../auth/msa.py}
+              ${builtins.readFile ../auth/auth_code_server.py}
+              ${builtins.readFile ../auth/login.py}
+            '');
         in {
-          deps = [ "parseRunnerArgs" ];
-          text = let json = "${jq}/bin/jq --raw-output";
+          deps = ["parseRunnerArgs"];
+          text = let
+            json = "${jq}/bin/jq --raw-output";
           in ''
             ${ensureAuth} --profile "$PROFILE"
 
